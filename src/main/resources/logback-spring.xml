@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-15d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{0}[%file:%line] - %msg%n %ex{2}</pattern>
+    </encoder>
+  </appender>
+  
+  <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    	<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+	    <File>./logs/csbService.log</File>
+	    <!--<Encoding>UTF-8</Encoding>-->
+	    <encoder>
+	      <pattern>%-15d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{0}[%file:%line] - %msg%n %ex{2}</pattern>
+	    </encoder>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	      	<FileNamePattern>./logs/csbService.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+	      	<MaxHistory>10</MaxHistory>
+		    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP"> 
+		      	<MaxFileSize>10MB</MaxFileSize>
+		    </timeBasedFileNamingAndTriggeringPolicy>
+	    </rollingPolicy>
+     	<append>true</append>  
+  </appender>
+
+  <logger name="com.kargo" level="debug" />
+
+	
+  <root level="debug">
+    <appender-ref ref="stdout"/>
+    <appender-ref ref="logfile"/>
+  </root>
+ 
+</configuration>
