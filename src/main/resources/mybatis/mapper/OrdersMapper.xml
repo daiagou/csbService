@@ -292,4 +292,56 @@
       </if>
     </if>
   </select>
+
+
+
+  <select id="selectPageOrder" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from orders where 1 = 1
+    <if test="record.id != null">
+      and id = #{record.id,jdbcType=INTEGER}
+    </if>
+    <if test="record.orderNo != null">
+      and order_no = #{record.orderNo,jdbcType=VARCHAR}
+    </if>
+    <if test="record.totalAmount != null">
+      and total_amount = #{record.totalAmount,jdbcType=DECIMAL}
+    </if>
+    <if test="record.customer != null">
+      and customer = #{record.customer,jdbcType=VARCHAR}
+    </if>
+    <if test="record.openid != null">
+      and openid = #{record.openid,jdbcType=VARCHAR}
+    </if>
+    <if test="record.phone != null">
+      and phone = #{record.phone,jdbcType=VARCHAR}
+    </if>
+    <if test="record.address != null">
+      and address = #{record.address,jdbcType=VARCHAR}
+    </if>
+    <if test="record.comment != null">
+      and comment = #{record.comment,jdbcType=VARCHAR}
+    </if>
+    <if test="record.orderStatus != null">
+      and order_status = #{record.orderStatus,jdbcType=VARCHAR}
+    </if>
+    <if test="record.createTime != null">
+      and create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="record.updateTime != null">
+      and update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="orderBy != null">
+       order by ${orderBy}
+    </if>
+    <if test="pageable!=null">
+      <if test="pageable.offset == 0 and pageable.pageSize > 0">
+        limit ${pageable.pageSize}
+      </if>
+      <if test="pageable.offset > 0 and pageable.pageSize > 0">
+        limit ${pageable.offset}, ${pageable.pageSize}
+      </if>
+    </if>
+  </select>
 </mapper>

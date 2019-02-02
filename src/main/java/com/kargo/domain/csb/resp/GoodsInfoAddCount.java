@@ -29,4 +29,17 @@ public class GoodsInfoAddCount {
     private Date createTime;
 
     private Date updateTime;
+
+
+    private String detailPicUrl1;
+
+    private String detailPicUrl2;
+
+    private String detailPicUrl3;
+
+    private String detailPicUrl4;
+
+    private String detailPicUrl5;
+
+
 }

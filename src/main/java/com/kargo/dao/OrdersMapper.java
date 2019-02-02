@@ -1,9 +1,7 @@
 package com.kargo.dao;
 
 import com.kargo.model.Orders;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.ResultType;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -31,5 +29,7 @@ public interface OrdersMapper {
     @Update("update orders set order_status='CANCEL' where order_no=#{orderNo} and order_status='CREATED'")
     @ResultType(Integer.class)
     int cancelOrder(String orderNo);
+
+    List<Orders> selectPageOrder(@Param("record") Orders record,@Param("orderBy") String orderBy, @Param("pageable") Pageable pageable);
 
 }

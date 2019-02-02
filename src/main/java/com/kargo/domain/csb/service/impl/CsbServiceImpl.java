@@ -83,7 +83,7 @@ public class CsbServiceImpl implements CsbService {
         Orders orders = new Orders();
         orders.setPhone(phone);
         orders.setOrderStatus(orderStatus);
-        List<Orders> orderss = ordersMapper.selectPage(orders, null);
+        List<Orders> orderss = ordersMapper.selectPageOrder(orders, "update_time desc",null);
         if(CollectionUtils.isEmpty(orderss)){
             return baseResponse.genSuccessResp();
         }

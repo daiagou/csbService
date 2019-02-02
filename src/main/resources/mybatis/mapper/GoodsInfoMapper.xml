@@ -9,12 +9,18 @@
     <result column="goods_type" jdbcType="VARCHAR" property="goodsType" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="detail_pic_url1" jdbcType="VARCHAR" property="detailPicUrl1" />
+    <result column="detail_pic_url2" jdbcType="VARCHAR" property="detailPicUrl2" />
+    <result column="detail_pic_url3" jdbcType="VARCHAR" property="detailPicUrl3" />
+    <result column="detail_pic_url4" jdbcType="VARCHAR" property="detailPicUrl4" />
+    <result column="detail_pic_url5" jdbcType="VARCHAR" property="detailPicUrl5" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, goods_name, price, pic_url, goods_type, create_time, update_time
+    id, goods_name, price, pic_url, goods_type, create_time, update_time, detail_pic_url1,
+    detail_pic_url2, detail_pic_url3, detail_pic_url4, detail_pic_url5
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from goods_info
     where id = #{id,jdbcType=INTEGER}
@@ -24,12 +30,16 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.kargo.model.GoodsInfo">
-    insert into goods_info (id, goods_name, price, 
-      pic_url, goods_type, create_time, 
-      update_time)
-    values (#{id,jdbcType=INTEGER}, #{goodsName,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, 
-      #{picUrl,jdbcType=VARCHAR}, #{goodsType,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+    insert into goods_info (id, goods_name, price,
+    pic_url, goods_type, create_time,
+    update_time, detail_pic_url1, detail_pic_url2,
+    detail_pic_url3, detail_pic_url4, detail_pic_url5
+    )
+    values (#{id,jdbcType=INTEGER}, #{goodsName,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL},
+    #{picUrl,jdbcType=VARCHAR}, #{goodsType,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+    #{updateTime,jdbcType=TIMESTAMP}, #{detailPicUrl1,jdbcType=VARCHAR}, #{detailPicUrl2,jdbcType=VARCHAR},
+    #{detailPicUrl3,jdbcType=VARCHAR}, #{detailPicUrl4,jdbcType=VARCHAR}, #{detailPicUrl5,jdbcType=VARCHAR}
+    )
   </insert>
   <insert id="insertSelective" parameterType="com.kargo.model.GoodsInfo">
     insert into goods_info
@@ -55,6 +65,21 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="detailPicUrl1 != null">
+        detail_pic_url1,
+      </if>
+      <if test="detailPicUrl2 != null">
+        detail_pic_url2,
+      </if>
+      <if test="detailPicUrl3 != null">
+        detail_pic_url3,
+      </if>
+      <if test="detailPicUrl4 != null">
+        detail_pic_url4,
+      </if>
+      <if test="detailPicUrl5 != null">
+        detail_pic_url5,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -77,6 +102,21 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="detailPicUrl1 != null">
+        #{detailPicUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl2 != null">
+        #{detailPicUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl3 != null">
+        #{detailPicUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl4 != null">
+        #{detailPicUrl4,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl5 != null">
+        #{detailPicUrl5,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -101,17 +141,37 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="detailPicUrl1 != null">
+        detail_pic_url1 = #{detailPicUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl2 != null">
+        detail_pic_url2 = #{detailPicUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl3 != null">
+        detail_pic_url3 = #{detailPicUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl4 != null">
+        detail_pic_url4 = #{detailPicUrl4,jdbcType=VARCHAR},
+      </if>
+      <if test="detailPicUrl5 != null">
+        detail_pic_url5 = #{detailPicUrl5,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.kargo.model.GoodsInfo">
     update goods_info
     set goods_name = #{goodsName,jdbcType=VARCHAR},
-      price = #{price,jdbcType=DECIMAL},
-      pic_url = #{picUrl,jdbcType=VARCHAR},
-      goods_type = #{goodsType,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    price = #{price,jdbcType=DECIMAL},
+    pic_url = #{picUrl,jdbcType=VARCHAR},
+    goods_type = #{goodsType,jdbcType=VARCHAR},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    update_time = #{updateTime,jdbcType=TIMESTAMP},
+    detail_pic_url1 = #{detailPicUrl1,jdbcType=VARCHAR},
+    detail_pic_url2 = #{detailPicUrl2,jdbcType=VARCHAR},
+    detail_pic_url3 = #{detailPicUrl3,jdbcType=VARCHAR},
+    detail_pic_url4 = #{detailPicUrl4,jdbcType=VARCHAR},
+    detail_pic_url5 = #{detailPicUrl5,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectPage" resultMap="BaseResultMap">
@@ -139,13 +199,28 @@
     <if test="record.updateTime != null">
       and update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     </if>
+    <if test="record.detailPicUrl1 != null">
+      and detail_pic_url1 = #{record.detailPicUrl1,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl2 != null">
+      and detail_pic_url2 = #{record.detailPicUrl2,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl3 != null">
+      and detail_pic_url3 = #{record.detailPicUrl3,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl4 != null">
+      and detail_pic_url4 = #{record.detailPicUrl4,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl5 != null">
+      and detail_pic_url5 = #{record.detailPicUrl5,jdbcType=VARCHAR}
+    </if>
     <if test="pageable!=null">
       <if test="pageable.offset == 0 and pageable.pageSize > 0">
         limit ${pageable.pageSize}
-     </if>
-	 <if test="pageable.offset > 0 and pageable.pageSize > 0">
+      </if>
+      <if test="pageable.offset > 0 and pageable.pageSize > 0">
         limit ${pageable.offset}, ${pageable.pageSize}
-     </if>
+      </if>
     </if>
   </select>
   <select id="selectCount" resultType="java.lang.Integer">
@@ -172,8 +247,22 @@
     <if test="record.updateTime != null">
       and update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     </if>
+    <if test="record.detailPicUrl1 != null">
+      and detail_pic_url1 = #{record.detailPicUrl1,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl2 != null">
+      and detail_pic_url2 = #{record.detailPicUrl2,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl3 != null">
+      and detail_pic_url3 = #{record.detailPicUrl3,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl4 != null">
+      and detail_pic_url4 = #{record.detailPicUrl4,jdbcType=VARCHAR}
+    </if>
+    <if test="record.detailPicUrl5 != null">
+      and detail_pic_url5 = #{record.detailPicUrl5,jdbcType=VARCHAR}
+    </if>
   </select>
-
 
   <select id="queryGoodsInfosLike" resultMap="BaseResultMap">
     select
