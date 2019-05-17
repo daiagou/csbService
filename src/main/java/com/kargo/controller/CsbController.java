@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +31,22 @@ public class CsbController extends BaseControl {
 
     @Autowired
     private CsbService csbService;
+
+
+    @Autowired
+    RestTemplate restTemplate;
+
+
+    @RequestMapping(value = "/getOpenId", method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public String getOpenId( String code) {
+        logger.info("getOpenId code:[{}]",code);
+        String url="https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
+        String result = restTemplate.getForObject(url, String.class);
+        logger.info("getOpenId code:[{}],result:[{}]",code,result);
+        return result;
+    }
+
 
     @RequestMapping(value = "/cancelOrder", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
@@ -126,24 +142,6 @@ public class CsbController extends BaseControl {
 
 
 
-
-
-    @RequestMapping(value = "/uploadImg", method = {RequestMethod.GET, RequestMethod.POST})
-    @ResponseBody
-    public String uploadImg( @RequestParam("file") CommonsMultipartFile file) {
-        logger.info("uploadImg req");
-        BaseResponse baseResponse = new BaseResponse();
-        try {
-            baseResponse = csbService.uploadImg(file);
-        } catch (BusinessException e) {
-            baseResponse.genFail(e.getMessage());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-        String respStr = JSONObject.toJSONString(baseResponse);
-        logger.info("uploadImg respStr:[{}]", respStr);
-        return respStr;
-    }
 
     @RequestMapping(value = "/saveOrUpdateGoods", method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody

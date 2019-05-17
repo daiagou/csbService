@@ -5,13 +5,14 @@ import com.kargo.common.util.BaseResponse;
 import com.kargo.domain.csb.req.*;
 import com.kargo.model.GoodsInfo;
 import com.kargo.model.Orders;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * @author abner.zhang
  *
  */
 public interface CsbService {
+    String getOpenId(String code);
+
     BaseResponse cancelOrder(String orderNo);
 
     BaseResponse queryOrdersByPhone(String phone, String orderStatus);
@@ -28,7 +29,6 @@ public interface CsbService {
 
     BaseResponse updateGoods(UpdateGoodsInfoReq req);
 
-    BaseResponse uploadImg(CommonsMultipartFile file);
 
     BaseResponse queryGoodsInfo(QueryGoodsInfoReq req);
 

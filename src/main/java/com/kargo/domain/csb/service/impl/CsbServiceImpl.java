@@ -2,7 +2,6 @@ package com.kargo.domain.csb.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kargo.common.enums.CsbEnum;
-import com.kargo.common.exception.BusinessException;
 import com.kargo.common.util.BaseResponse;
 import com.kargo.common.util.CheckArgsUtil;
 import com.kargo.common.util.MyBeanUtil;
@@ -29,12 +28,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -51,12 +52,26 @@ public class CsbServiceImpl implements CsbService {
     @Autowired
     private OrdersMapper ordersMapper;
 
-    @Value("${file.out.path}")
-    private String fileOutPath;
-    @Value("${pic.url.first}")
-    private String picUrlFirst;
-    @Value("${pic.url.second}")
-    private String picUrlSecond;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${miniapp.appid}")
+    String appId  ;
+    @Value("${miniapp.secret}")
+    String secret  ;
+
+
+
+    @Override
+    public String getOpenId(String code){
+        logger.info("getOpenId code:[{}]",code);
+        String url="https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
+        url = MessageFormat.format(url,appId,secret,code);
+        String result = new RestTemplate().getForObject(url, String.class);
+        logger.info("getOpenId code:[{}],result:[{}]",code,result);
+        return result;
+    }
 
 
     @Override
@@ -245,19 +260,6 @@ public class CsbServiceImpl implements CsbService {
     }
 
 
-    @Override
-    public BaseResponse uploadImg(CommonsMultipartFile file) {
-        BaseResponse baseResponse = new BaseResponse();
-
-        if(file.isEmpty()){
-            return baseResponse.genFail("请上传图片");
-        }
-        String fileName = saveFile(file, Arrays.asList(new String[]{"gif","bmp","jpg","jpeg","png"}));
-        if (org.apache.commons.lang.StringUtils.isBlank(fileName)) {
-            return baseResponse.genFail("上传失败!");
-        }
-        return baseResponse.genSuccessResp(picUrlFirst+picUrlSecond+fileName);
-    }
 
 
     @Override
@@ -360,49 +362,6 @@ public class CsbServiceImpl implements CsbService {
 
 
 
-
-    public String saveFile(CommonsMultipartFile partFile, List<String> allowExtensions) {
-        logger.info("saveFile req:[{}]", JSONObject.toJSONString(allowExtensions));
-
-        //保存文件
-        String orderNo = UtilLocalDate.getOrderNo("", 6);
-//        String outPutPath = fileOutPath + File.separator + UtilLocalDate.format(Calendar.getInstance().getTime(), UtilLocalDate.yyyyMMdd_dateFormat) + File.separator + orderNo + File.separator;
-        String outPutPath = fileOutPath + File.separator;
-        File dir = new File(outPutPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        if (partFile.isEmpty()) {
-            return null;
-        }
-        //校验后缀名
-        String extension = "";
-        int i = partFile.getOriginalFilename().lastIndexOf('.');
-        if (i > 0) {
-            extension = partFile.getOriginalFilename().substring(i + 1);
-        }
-        if (!CollectionUtils.isEmpty(allowExtensions)) {
-            if (org.apache.commons.lang3.StringUtils.isBlank(extension) || !allowExtensions.contains(extension)) {
-                return null;
-            }
-        }
-
-        String fileName=System.currentTimeMillis()+"."+extension;
-        String filePath = outPutPath + fileName;
-        File file = new File(filePath);
-
-
-        //保存文件到本地
-        try {
-            partFile.transferTo(file);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new BusinessException("文件上传失败");
-        }
-
-        //上传文件到微信：
-        return fileName;
-    }
 
 
 
