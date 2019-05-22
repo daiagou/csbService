@@ -11,6 +11,7 @@ import com.kargo.domain.csb.req.QueryOrderInfosReq;
 import com.kargo.domain.csb.service.CsbService;
 import com.kargo.model.GoodsInfo;
 import com.kargo.model.Orders;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,14 @@ public class CsbController extends BaseControl {
     @ResponseBody
     public String getOpenId( String code) {
         logger.info("getOpenId code:[{}]",code);
-        String url="https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
-        String result = restTemplate.getForObject(url, String.class);
-        logger.info("getOpenId code:[{}],result:[{}]",code,result);
-        return result;
+        BaseResponse baseResponse = new BaseResponse();
+        String openId = csbService.getOpenId(code);
+        if(StringUtils.isNotBlank(openId)){
+            baseResponse.genSuccessResp();
+        }
+        String respStr = JSONObject.toJSONString(baseResponse);
+        logger.info("getOpenId respStr:[{}]", respStr);
+        return respStr;
     }
 
 
@@ -64,6 +69,24 @@ public class CsbController extends BaseControl {
         logger.info("cancelOrder respStr:[{}]", respStr);
         return respStr;
     }
+
+    @RequestMapping(value = "/queryOrdersByCode", method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public String queryOrdersByCode(HttpServletRequest request,String code, String orderStatus) {
+        logger.info("queryOrdersByCode code:[{}],orderStatus:[{}]",code,orderStatus);
+        BaseResponse baseResponse = new BaseResponse();
+        try {
+            baseResponse = csbService.queryOrdersByCode(code,orderStatus);
+        } catch (BusinessException e) {
+            baseResponse.genFail(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        String respStr = JSONObject.toJSONString(baseResponse);
+        logger.info("queryOrdersByCode respStr:[{}]", respStr);
+        return respStr;
+    }
+
 
 
     @RequestMapping(value = "/queryOrdersByPhone", method = {RequestMethod.GET, RequestMethod.POST})

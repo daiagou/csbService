@@ -15,6 +15,8 @@ public interface CsbService {
 
     BaseResponse cancelOrder(String orderNo);
 
+    BaseResponse queryOrdersByCode(String code, String orderStatus);
+
     BaseResponse queryOrdersByPhone(String phone, String orderStatus);
 
     BaseResponse buy(BuyReq req);

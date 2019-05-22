@@ -4,7 +4,6 @@ import com.kargo.common.annotations.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -15,12 +14,15 @@ import java.util.Map;
 public class BuyReq {
 
 
-    private BigDecimal totalAmount;
 
     @NotBlank
     private String customer;
 
     private String openid;
+
+
+    @NotBlank
+    private String code;
 
     @NotBlank
     private String phone;

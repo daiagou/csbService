@@ -6,14 +6,14 @@ import com.kargo.common.util.BaseResponse;
 import com.kargo.common.util.CheckArgsUtil;
 import com.kargo.common.util.MyBeanUtil;
 import com.kargo.common.util.UtilLocalDate;
-import com.kargo.dao.CustomerMapper;
-import com.kargo.dao.GoodsInfoMapper;
-import com.kargo.dao.OrderGoodsInfoMapper;
-import com.kargo.dao.OrdersMapper;
+import com.kargo.dao.*;
 import com.kargo.domain.csb.req.*;
 import com.kargo.domain.csb.resp.GoodsInfoAddCount;
+import com.kargo.domain.csb.resp.MPOpenid;
+import com.kargo.domain.csb.resp.OrderResp;
 import com.kargo.domain.csb.resp.QueryOrdersByPhoneResp;
 import com.kargo.domain.csb.service.CsbService;
+import com.kargo.model.CodeOpenid;
 import com.kargo.model.GoodsInfo;
 import com.kargo.model.OrderGoodsInfo;
 import com.kargo.model.Orders;
@@ -62,15 +62,38 @@ public class CsbServiceImpl implements CsbService {
     String secret  ;
 
 
+    @Autowired
+    private CodeOpenidMapper codeOpenidMapper;
+
+
+
 
     @Override
     public String getOpenId(String code){
         logger.info("getOpenId code:[{}]",code);
+        if(StringUtils.isBlank(code)){
+            return "";
+        }
+        CodeOpenid codeOpenid = new CodeOpenid();
+        codeOpenid.setCode(code);
+        List<CodeOpenid> codeOpenids = codeOpenidMapper.selectPage(codeOpenid, PageRequest.of(0, 1));
+        if(!CollectionUtils.isEmpty(codeOpenids)){
+            return codeOpenids.get(0).getOpenid();
+        }
         String url="https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
         url = MessageFormat.format(url,appId,secret,code);
         String result = new RestTemplate().getForObject(url, String.class);
         logger.info("getOpenId code:[{}],result:[{}]",code,result);
-        return result;
+        MPOpenid mpOpenid = JSONObject.parseObject(result, MPOpenid.class);
+        //存放数据库
+        if(mpOpenid ==null){
+            return "";
+        }
+        if(StringUtils.isNotBlank(mpOpenid.getOpenid())){
+            codeOpenid.setOpenid(mpOpenid.getOpenid());
+            codeOpenidMapper.insertSelective(codeOpenid);
+        }
+        return mpOpenid.getOpenid();
     }
 
 
@@ -82,21 +105,23 @@ public class CsbServiceImpl implements CsbService {
         return baseResponse.genSuccessResp(i);
     }
 
-
-
-
     @Override
-    public BaseResponse queryOrdersByPhone(String phone, String orderStatus){
-        logger.info("queryOrdersByPhone req:[{}]",phone);
+    public BaseResponse queryOrdersByCode(String code, String orderStatus){
+        logger.info("queryOrdersByCode code:[{}],orderStatus:[{}]",code,orderStatus);
         BaseResponse baseResponse = new BaseResponse();
-        if(StringUtils.isBlank(phone)){
-            return baseResponse.genFail("请输入手机号码");
+        if(StringUtils.isBlank(code)){
+            return baseResponse.genFail("请重新登陆");
         }
         if(StringUtils.isBlank(orderStatus)){
             return baseResponse.genFail("param error");
         }
+        String openid = getOpenId(code);
+        if(StringUtils.isBlank(openid)){
+            return baseResponse.genFail("请重新登陆");
+        }
+
         Orders orders = new Orders();
-        orders.setPhone(phone);
+        orders.setOpenid(openid);
         orders.setOrderStatus(orderStatus);
         List<Orders> orderss = ordersMapper.selectPageOrder(orders, "update_time desc",null);
         if(CollectionUtils.isEmpty(orderss)){
@@ -106,6 +131,7 @@ public class CsbServiceImpl implements CsbService {
         OrderGoodsInfo orderGoodsInfo = null;
         List<QueryOrdersByPhoneResp> list = new ArrayList<>();
         QueryOrdersByPhoneResp resp = null;
+        OrderResp orderResp = null;
         for(Orders tempOrders:orderss){
             resp = new QueryOrdersByPhoneResp();
             stringBuffer = new StringBuffer();
@@ -117,12 +143,56 @@ public class CsbServiceImpl implements CsbService {
                     stringBuffer.append(tempOrderGoodsInfo.getGoodsName()).append("X").append(tempOrderGoodsInfo.getGoodsCount()).append(",");
                 }
             }
-            resp.setOrders(tempOrders);
+            orderResp = new OrderResp();
+            BeanUtils.copyProperties(tempOrders,orderResp);
+            resp.setOrders(orderResp);
             resp.setOrderGoodsInfoList(orderGoodsInfos);
             resp.setOrderDetails(stringBuffer.toString().substring(0,stringBuffer.length()-1));
             list.add(resp);
         }
         return baseResponse.genSuccessResp(list);
+    }
+
+
+    @Override
+    public BaseResponse queryOrdersByPhone(String phone, String orderStatus){
+        logger.info("queryOrdersByPhone req:[{}]",phone);
+        return new BaseResponse();
+//        BaseResponse baseResponse = new BaseResponse();
+//        if(StringUtils.isBlank(phone)){
+//            return baseResponse.genFail("请输入手机号码");
+//        }
+//        if(StringUtils.isBlank(orderStatus)){
+//            return baseResponse.genFail("param error");
+//        }
+//        Orders orders = new Orders();
+//        orders.setPhone(phone);
+//        orders.setOrderStatus(orderStatus);
+//        List<Orders> orderss = ordersMapper.selectPageOrder(orders, "update_time desc",null);
+//        if(CollectionUtils.isEmpty(orderss)){
+//            return baseResponse.genSuccessResp();
+//        }
+//        StringBuffer stringBuffer = null;
+//        OrderGoodsInfo orderGoodsInfo = null;
+//        List<QueryOrdersByPhoneResp> list = new ArrayList<>();
+//        QueryOrdersByPhoneResp resp = null;
+//        for(Orders tempOrders:orderss){
+//            resp = new QueryOrdersByPhoneResp();
+//            stringBuffer = new StringBuffer();
+//            orderGoodsInfo = new OrderGoodsInfo();
+//            orderGoodsInfo.setOrderNo(tempOrders.getOrderNo());
+//            List<OrderGoodsInfo> orderGoodsInfos = orderGoodsInfoMapper.selectPage(orderGoodsInfo, null);
+//            if(!CollectionUtils.isEmpty(orderGoodsInfos)){
+//                for(OrderGoodsInfo tempOrderGoodsInfo:orderGoodsInfos){
+//                    stringBuffer.append(tempOrderGoodsInfo.getGoodsName()).append("X").append(tempOrderGoodsInfo.getGoodsCount()).append(",");
+//                }
+//            }
+//            resp.setOrders(tempOrders);
+//            resp.setOrderGoodsInfoList(orderGoodsInfos);
+//            resp.setOrderDetails(stringBuffer.toString().substring(0,stringBuffer.length()-1));
+//            list.add(resp);
+//        }
+//        return baseResponse.genSuccessResp(list);
     }
 
 
@@ -137,6 +207,14 @@ public class CsbServiceImpl implements CsbService {
         Map<String ,String> map= CheckArgsUtil.checkArgsMap(req);
         if (map!=null) {
             return baseResponse.genFail(map.values().iterator().next());
+        }
+
+
+        //根据code，查询openid
+        req.setOpenid(getOpenId(req.getCode()));
+        logger.info("buy final req:[{}]",JSONObject.toJSONString(req));
+        if(StringUtils.isBlank(req.getOpenid())){
+            return baseResponse.genFail("请重新登陆!");
         }
 
         Set<Integer> integers = req.getToBuyGoods().keySet();

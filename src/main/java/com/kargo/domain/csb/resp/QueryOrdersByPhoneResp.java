@@ -1,7 +1,6 @@
 package com.kargo.domain.csb.resp;
 
 import com.kargo.model.OrderGoodsInfo;
-import com.kargo.model.Orders;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +13,7 @@ import java.util.List;
 @Setter
 public class QueryOrdersByPhoneResp {
 
-    private Orders orders;
+    private OrderResp orders;
 
     private List<OrderGoodsInfo> orderGoodsInfoList;
 
